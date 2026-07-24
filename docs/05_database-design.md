@@ -97,7 +97,7 @@ DB の check は 10.0〜30.0 と広めに取り、UI の選択肢（11.0〜25.0�
 
 | テーブル | SELECT | INSERT | UPDATE | DELETE |
 |----------|--------|--------|--------|--------|
-| profiles | 本人のみ | ―（トリガーのみ） | 本人のみ | ―（cascade のみ） |
+| profiles | 本人 + 同 Family メンバー | ―（トリガーのみ） | 本人のみ | ―（cascade のみ） |
 | families | メンバー | ―（RPC のみ） | メンバー | ― |
 | family_members | 同 Family メンバー | ―（RPC のみ） | ― | 自分の行のみ（脱退） |
 | family_invites | 発行 Family のメンバー | ―（RPC のみ） | ―（RPC のみ） | ― |
@@ -107,6 +107,11 @@ DB の check は 10.0〜30.0 と広めに取り、UI の選択肢（11.0〜25.0�
 
 「―」は該当操作のポリシーを定義していない＝一般ユーザーには常に拒否、の意。
 INSERT を許可しないテーブルへの書き込みは、すべて `SECURITY DEFINER` の RPC を経由させる。
+
+profiles の「同 Family メンバー」閲覧は `shares_family_with(target_user)`（`is_family_member` 同様に
+`SECURITY DEFINER` で再帰を回避）で判定する。設定画面で配偶者の表示名・メールを出すために必要
+（当初は本人のみ許可で、配偶者側が「不明なユーザー」と表示される不具合があった。
+`20260725000001_allow_family_member_profile_view.sql` で追加）。
 
 ## 4. RPC（データベース関数）
 

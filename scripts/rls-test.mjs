@@ -157,6 +157,13 @@ async function main() {
   });
   check("B が A の Family の招待コードを発行できない", !!bInvite);
 
+  // profiles: 家族が異なるうちは互いの profile が見えない
+  const { data: bSeesAProfile } = await userB.client
+    .from("profiles")
+    .select("id")
+    .eq("id", userA.id);
+  check("B から A の profile が見えない（別 Family）", (bSeesAProfile ?? []).length === 0);
+
   console.log("\n--- Storage の越境アクセス拒否 ---");
 
   const photoPath = `${familyAId}/${shoeA.id}/test.jpg`;
@@ -206,6 +213,16 @@ async function main() {
   check(
     "参加後は B から A の靴が見える",
     (bSeesShoesAfterJoin ?? []).length === 1
+  );
+
+  // 参加後は同じ Family になった A の profile も見える（設定画面のメンバー表示に必要）
+  const { data: bSeesAProfileAfterJoin } = await userB.client
+    .from("profiles")
+    .select("id")
+    .eq("id", userA.id);
+  check(
+    "参加後は B から A の profile が見える（同じ Family）",
+    (bSeesAProfileAfterJoin ?? []).length === 1
   );
 
   const { error: reuseError } = await userB.client.rpc("join_family_by_code", {
