@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+html {
+  /* iOS Safari のダブルタップズーム抑制 */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
